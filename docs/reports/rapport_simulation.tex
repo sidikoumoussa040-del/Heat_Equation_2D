@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{float}
+\geometry{margin=2.5cm}
+
+\title{\textbf{Analyse Numérique de l'Équation de la Chaleur 2D}\\ \large Implémentation et Comparaison de Schémas aux Différences Finies}
+\author{Sidik}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Ce document présente la modélisation et la résolution numérique de l'équation de la chaleur bidimensionnelle. Nous étudions plusieurs schémas aux différences finies (Euler Explicite, Euler Implicite, Crank-Nicolson, ADI). Pour chaque méthode, nous analysons théoriquement la consistance et la stabilité, avant de présenter les résultats numériques et l'analyse des erreurs de convergence par rapport à une solution analytique exacte.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Modèle Physique et Mathématique}
+
+L'équation de la chaleur en deux dimensions s'écrit :
+\begin{equation}
+\frac{\partial u}{\partial t} = \alpha \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right) \quad \text{sur } \Omega \times ]0, T]
+\end{equation}
+où $\alpha$ est la diffusivité thermique du matériau. Le domaine spatial est défini par $\Omega = [0, L_x] \times [0, L_y]$.
+
+Dans notre étude, nous choisissons un cas où la solution exacte est connue, afin de pouvoir quantifier rigoureusement l'erreur numérique.
+\begin{itemize}
+    \item \textbf{Conditions aux limites (Dirichlet)} : $u(0,y,t) = u(L_x,y,t) = u(x,0,t) = u(x,L_y,t) = 0$.
+    \item \textbf{Condition initiale} (Mode fondamental) : $u(x,y,0) = u_0 \sin\left(\frac{\pi x}{L_x}\right) \sin\left(\frac{\pi y}{L_y}\right)$.
+\end{itemize}
+
+La \textbf{solution analytique exacte} correspondante est :
+\begin{equation}
+u(x,y,t) = u_0 \sin\left(\frac{\pi x}{L_x}\right) \sin\left(\frac{\pi y}{L_y}\right) e^{-\alpha \pi^2 \left(\frac{1}{L_x^2} + \frac{1}{L_y^2}\right) t}
+\end{equation}
+
+\newpage
+\section{Méthode d'Euler Explicite (FTCS)}
+
+Le schéma FTCS (Forward Time Centered Space) utilise des différences finies décentrées en avant pour le temps, et centrées pour l'espace.
+
+\subsection{Formulation du Schéma}
+La discrétisation donne :
+\begin{equation}
+\frac{U_{i,j}^{n+1} - U_{i,j}^n}{\Delta t} = \alpha \left( \frac{U_{i+1,j}^n - 2U_{i,j}^n + U_{i-1,j}^n}{\Delta x^2} + \frac{U_{i,j+1}^n - 2U_{i,j}^n + U_{i,j-1}^n}{\Delta y^2} \right)
+\end{equation}
+En posant $r_x = \alpha \frac{\Delta t}{\Delta x^2}$ et $r_y = \alpha \frac{\Delta t}{\Delta y^2}$, on obtient l'équation de mise à jour :
+\begin{equation}
+U_{i,j}^{n+1} = U_{i,j}^n + r_x (U_{i+1,j}^n - 2U_{i,j}^n + U_{i-1,j}^n) + r_y (U_{i,j+1}^n - 2U_{i,j}^n + U_{i,j-1}^n)
+\end{equation}
+
+\subsection{Analyse de Consistance}
+L'erreur de troncature locale s'obtient par développement de Taylor. On trouve que le schéma FTCS est d'ordre $O(\Delta t)$ en temps et $O(\Delta x^2) + O(\Delta y^2)$ en espace. Le schéma est donc \textbf{consistant}.
+
+\subsection{Analyse de Stabilité (Von Neumann)}
+L'analyse de Von Neumann (insertion d'un mode $U_{i,j}^n = G^n e^{I k_x x_i} e^{I k_y y_j}$) donne pour le facteur d'amplification $G$ :
+\begin{equation}
+G = 1 - 4 r_x \sin^2\left(\frac{k_x \Delta x}{2}\right) - 4 r_y \sin^2\left(\frac{k_y \Delta y}{2}\right)
+\end{equation}
+Pour garantir la stabilité ($-1 \leq G \leq 1$), la condition stricte est :
+\begin{equation}
+r_x + r_y \leq \frac{1}{2}
+\end{equation}
+
+\subsection{Convergence}
+Le schéma étant linéaire, consistant et stable sous la condition CFL énoncée, le théorème de Lax garantit qu'il est \textbf{convergent}. L'erreur globale décroît proportionnellement à $\Delta t$ et à $\Delta x^2$.
+
+\subsection{Résultats et Analyse d'Erreur}
+Dans cette section, nous présentons la distribution de température finale obtenue numériquement, ainsi que l'évolution de l'erreur en fonction de la taille du maillage.
+
+% Espace pour insérer la figure de la distribution de température
+\begin{figure}[H]
+    \centering
+    % Décommentez la ligne ci-dessous une fois les images compilées
+    % \includegraphics[width=0.7\textwidth]{../../results/figures/etat_final.png}
+    \vspace{6cm} % Espace vide en attendant l'image
+    \caption{Distribution de la température à l'état final (Schéma d'Euler Explicite)}
+    \label{fig:euler_exp_final}
+\end{figure}
+
+% Espace pour insérer la courbe de convergence (Erreur vs dt / dx)
+\begin{figure}[H]
+    \centering
+    % Décommentez la ligne ci-dessous une fois les images compilées
+    % \includegraphics[width=0.7\textwidth]{../../results/figures/convergence_explicite.png}
+    \vspace{6cm} % Espace vide en attendant l'image
+    \caption{Analyse de convergence : Erreur $L_\infty$ en fonction du pas de temps $\Delta t$ (en échelle log-log)}
+    \label{fig:euler_exp_conv}
+\end{figure}
+
+
+\newpage
+\section{Méthode d'Euler Implicite (BTCS) - À venir}
+
+\subsection{Formulation du Schéma}
+% À compléter lors de la phase 2
+
+\subsection{Analyse de Stabilité}
+% À compléter (Inconditionnellement stable)
+
+\subsection{Résultats Numériques}
+% Espaces pour figures
+
+
+\newpage
+\section{Méthode de Crank-Nicolson - À venir}
+% À compléter lors de la phase 3
+
+
+\newpage
+\section{Comparaison des Méthodes et Conclusion}
+% À compléter à la fin du projet
+
+
+\end{document}
