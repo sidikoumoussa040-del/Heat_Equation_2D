@@ -95,6 +95,20 @@ Heat_Equation_2D/
     └── generate_report.py
 ```
 
+## 🧪 Scénario Modélisé (Phase 1)
+
+Pour notre première phase d'expérimentation, la simulation reproduit le scénario physique suivant :
+
+- **Domaine Spatial ($\Omega$)** : Plaque carrée de dimension $L_x = 1.0$ m et $L_y = 1.0$ m.
+- **Conditions aux Limites (Dirichlet)** : Les bords de la plaque sont maintenus à une température froide constante.
+  $$T(0,y,t) = T(L_x,y,t) = T(x,0,t) = T(x,L_y,t) = 10\text{°C}$$
+- **Condition Initiale** : Une tache de chaleur intense (profil gaussien) déposée au centre de la plaque froide.
+  $$T(x,y,0) = 10 + 100 \cdot \exp\left(-\frac{(x - 0.5)^2 + (y - 0.5)^2}{0.1^2}\right)$$
+- **Solution Exacte Analytique** : La solution exacte de ce problème (avec $u = T - 10$ pour avoir des bords homogènes) se décompose en série de Fourier double (fonctions propres du laplacien sur un carré) :
+  $$T(x,y,t) = 10 + \sum_{m=1}^{\infty} \sum_{n=1}^{\infty} A_{mn} \sin(m \pi x) \sin(n \pi y) \cdot e^{-\alpha \pi^2 (m^2 + n^2) t}$$
+  où les coefficients $A_{mn}$ s'obtiennent par projection de la condition initiale sur la base des sinus :
+  $$A_{mn} = 4 \int_{0}^{1} \int_{0}^{1} \left( T(x,y,0) - 10 \right) \sin(m \pi x) \sin(n \pi y) \, dx \, dy$$
+
 ## 🚀 Méthodes Numériques Implémentées
 
 | Phase | Méthode | Schéma | Stabilité | Ordre (espace) | Ordre (temps) | Statut |
