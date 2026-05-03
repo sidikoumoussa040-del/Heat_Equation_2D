@@ -1,0 +1,64 @@
+# ============================================================
+# .gitignore — Heat Equation 2D Simulation Project
+# ============================================================
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyo
+
+# === Environnements virtuels ===
+venv/
+env/
+.env/
+.venv/
+ENV/
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# === Résultats de simulation (fichiers lourds) ===
+results/figures/*.png
+results/figures/*.pdf
+results/animations/*.gif
+results/animations/*.mp4
+results/data/*.npy
+results/data/*.csv
+results/data/*.h5
+results/data/*.hdf5
+
+# GARDER la structure des dossiers results/
+!results/figures/.gitkeep
+!results/animations/.gitkeep
+!results/data/.gitkeep
+
+# === IDE et éditeurs ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# === LaTeX (docs) ===
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+
+# === Divers ===
+*.tmp
+*.bak
+Thumbs.db
+desktop.ini
