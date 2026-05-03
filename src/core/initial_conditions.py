@@ -15,6 +15,13 @@ def gaussian_blob(grid, center_x: float, center_y: float, radius: float, max_tem
     T += max_temp * np.exp(-dist_sq / (radius**2))
     return T
 
+def fundamental_mode(grid, max_temp: float = 100.0) -> np.ndarray:
+    """
+    Crée une condition initiale correspondant au mode fondamental de la plaque carrée.
+    Solution exacte très simple : décroissance exponentielle de ce même mode.
+    """
+    return max_temp * np.sin(np.pi * grid.X / grid.Lx) * np.sin(np.pi * grid.Y / grid.Ly)
+
 def uniform_temperature(grid, temp: float = 0.0) -> np.ndarray:
     """
     Crée une distribution de température uniforme.

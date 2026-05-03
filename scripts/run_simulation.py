@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.core.grid import Grid2D
 from src.core.boundary import DirichletBC
-from src.core.initial_conditions import gaussian_blob
+from src.core.initial_conditions import fundamental_mode
 from src.methods.explicit_euler import ExplicitEulerSolver
 from src.visualization.plot_2d import plot_heatmap, animate_heatmap
 
@@ -21,13 +21,13 @@ def main():
     print("1. Création de la grille...")
     grid = Grid2D(Lx=1.0, Ly=1.0, Nx=50, Ny=50)
     
-    # 2. Condition Initiale: Tache très chaude (100°C) au milieu d'une plaque froide (10°C)
-    print("2. Mise en place des conditions initiales...")
-    T0 = gaussian_blob(grid, center_x=0.5, center_y=0.5, radius=0.1, max_temp=100.0, bg_temp=10.0)
+    # 2. Condition Initiale: Mode fondamental sinusoïdal (T_max = 100°C)
+    print("2. Mise en place des conditions initiales (Mode Fondamental)...")
+    T0 = fundamental_mode(grid, max_temp=100.0)
     
-    # 3. Condition aux Limites: Les bords sont maintenus froids (10°C)
+    # 3. Condition aux Limites: Les bords sont maintenus à 0°C
     print("3. Configuration des conditions aux limites...")
-    bc = DirichletBC(value=10.0)
+    bc = DirichletBC(value=0.0)
     T0 = bc.apply(T0)
     
     # 4. Paramètres physiques et numériques
@@ -48,6 +48,15 @@ def main():
     print(f"5. Lancement du calcul pour {num_steps} pas de temps...")
     solver.run(num_steps)
     print("   -> Calcul terminé avec succès !")
+    
+    # 5.bis Calcul de l'erreur par rapport à la solution analytique exacte
+    import numpy as np
+    t_final = num_steps * dt
+    T_exact = 100.0 * np.sin(np.pi * grid.X / grid.Lx) * np.sin(np.pi * grid.Y / grid.Ly) * \
+              np.exp(-alpha * np.pi**2 * (1.0/grid.Lx**2 + 1.0/grid.Ly**2) * t_final)
+    
+    error_max = np.max(np.abs(solver.T - T_exact))
+    print(f"   -> Erreur maximale (L-infini) vs Analytique : {error_max:.4e}")
     
     # 6. Sauvegarde des résultats
     print("6. Génération des visualisations...")
